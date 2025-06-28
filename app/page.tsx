@@ -84,10 +84,10 @@ export default function Home() {
           contentRes,
           classesRes
         ] = await Promise.all([
-          fetch('http://localhost:8000/events/carousel'),
-          fetch('http://localhost:8000/events/section'),
-          fetch('http://localhost:8000/content/'),
-          fetch('http://localhost:8000/classes')
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/carousel`),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/events/section`),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/content/`),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL}/classes`)
         ])
 
         if (carouselRes.ok) setCarouselItems(await carouselRes.json())

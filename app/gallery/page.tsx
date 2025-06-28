@@ -19,7 +19,7 @@ export default function GalleryPage() {
   useEffect(() => {
     async function fetchAlbums() {
       try {
-        const res = await fetch('http://localhost:8000/gallery/albums')
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/albums`)
         if (!res.ok) {
           throw new Error('Failed to fetch albums')
         }

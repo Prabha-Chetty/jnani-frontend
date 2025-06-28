@@ -20,7 +20,7 @@ export default function LibraryPage() {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const res = await fetch('http://localhost:8000/library')
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/library`)
         if (res.ok) {
           const data = await res.json()
           setItems(data)

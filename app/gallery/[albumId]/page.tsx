@@ -29,7 +29,7 @@ export default function AlbumDetailPage({ params }: { params: { albumId: string 
     async function fetchAlbumDetail() {
       if (!params.albumId) return;
       try {
-        const res = await fetch(`http://localhost:8000/gallery/albums/${params.albumId}`)
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/albums/${params.albumId}`)
         if (!res.ok) {
           throw new Error('Failed to fetch album details')
         }

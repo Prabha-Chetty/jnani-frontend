@@ -35,7 +35,7 @@ export default function GalleryPage() {
 
   const loadAlbums = async () => {
     try {
-      const response = await fetch('http://localhost:8000/gallery/albums')
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/albums`)
       if (response.ok) {
         const data = await response.json()
         setAlbums(data)

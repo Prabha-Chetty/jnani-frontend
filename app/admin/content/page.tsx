@@ -88,21 +88,21 @@ export default function ContentPage() {
     setLoading(true)
     try {
       // Load about content
-      const aboutResponse = await fetch('http://localhost:8000/admin/content/about')
+      const aboutResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/content/about`)
       if (aboutResponse.ok) {
         const aboutData = await aboutResponse.json()
         setAboutContent(aboutData)
       }
 
       // Load contact content
-      const contactResponse = await fetch('http://localhost:8000/admin/content/contact')
+      const contactResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/content/contact`)
       if (contactResponse.ok) {
         const contactData = await contactResponse.json()
         setContactContent(contactData)
       }
 
       // Load social media content
-      const socialResponse = await fetch('http://localhost:8000/admin/content/social_media')
+      const socialResponse = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/content/social_media`)
       if (socialResponse.ok) {
         const socialData = await socialResponse.json()
         setSocialMediaContent(socialData)
@@ -118,7 +118,7 @@ export default function ContentPage() {
   const handleAboutSave = async () => {
     setSaving(true)
     try {
-      const response = await fetch('http://localhost:8000/admin/content/about', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/content/about`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -143,7 +143,7 @@ export default function ContentPage() {
   const handleContactSave = async () => {
     setSaving(true)
     try {
-      const response = await fetch('http://localhost:8000/admin/content/contact', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/content/contact`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -168,7 +168,7 @@ export default function ContentPage() {
   const handleSocialMediaSave = async () => {
     setSaving(true)
     try {
-      const response = await fetch('http://localhost:8000/admin/content/social_media', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/admin/content/social_media`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

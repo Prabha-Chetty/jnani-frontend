@@ -36,9 +36,9 @@ export default function AlbumForm({ album, onSuccess, onClose }: AlbumFormProps)
     setLoading(true)
 
     try {
-      const url = album 
-        ? `http://localhost:8000/gallery/albums/${album.id}`
-        : 'http://localhost:8000/gallery/albums'
+      const url = album
+        ? `${process.env.NEXT_PUBLIC_API_URL}/gallery/albums/${album.id}`
+        : `${process.env.NEXT_PUBLIC_API_URL}/gallery/albums`
       
       const method = album ? 'PUT' : 'POST'
       const body = album 

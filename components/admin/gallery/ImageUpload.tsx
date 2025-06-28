@@ -51,7 +51,7 @@ export default function ImageUpload({ albumId, onSuccess, onClose }: ImageUpload
         formData.append('file', image.file)
         formData.append('alt_text', image.file.name)
 
-        const response = await fetch(`http://localhost:8000/gallery/albums/${albumId}/images`, {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/albums/${albumId}/images`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${localStorage.getItem('adminAuthToken')}`

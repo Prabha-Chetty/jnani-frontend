@@ -41,7 +41,7 @@ export default function AlbumDetail({ albumId, onBack, onEdit, onAddImages }: Al
 
   const loadAlbum = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/gallery/albums/${albumId}`)
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/albums/${albumId}`)
       console.log('Album response:', response)
       if (response.ok) {
         const data = await response.json()
@@ -64,7 +64,7 @@ export default function AlbumDetail({ albumId, onBack, onEdit, onAddImages }: Al
 
     setDeletingImageId(imageId)
     try {
-      const response = await fetch(`http://localhost:8000/gallery/images/${imageId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/images/${imageId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('adminAuthToken')}`

@@ -32,7 +32,7 @@ export default function AlbumList({ albums, onEdit, onDelete, onView, onAddImage
 
     setDeletingId(albumId)
     try {
-      const response = await fetch(`http://localhost:8000/gallery/albums/${albumId}`, {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/gallery/albums/${albumId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('adminAuthToken')}`
