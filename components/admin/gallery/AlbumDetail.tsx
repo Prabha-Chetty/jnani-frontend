@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react'
 import { ArrowLeft, Plus, Trash2, Edit, Eye, Download, X } from 'lucide-react'
 import toast from 'react-hot-toast'
+import ImageUpload from './ImageUpload'
+import AlbumForm from './AlbumForm'
 
 interface Image {
   id: string
@@ -34,6 +36,8 @@ export default function AlbumDetail({ albumId, onBack, onEdit, onAddImages }: Al
   const [loading, setLoading] = useState(true)
   const [selectedImage, setSelectedImage] = useState<Image | null>(null)
   const [deletingImageId, setDeletingImageId] = useState<string | null>(null)
+  const [showImageUpload, setShowImageUpload] = useState(false)
+  const [showAlbumForm, setShowAlbumForm] = useState(false)
 
   useEffect(() => {
     loadAlbum()
@@ -103,6 +107,12 @@ export default function AlbumDetail({ albumId, onBack, onEdit, onAddImages }: Al
     })
   }
 
+  const getImageUrl = (filePath: string) => {
+    if (!filePath) return ''
+    if (filePath.startsWith('http')) return filePath
+    return `https://jnani-backend.onrender.com${filePath.startsWith('/') ? '' : '/'}${filePath}`
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen bg-dark-900 flex items-center justify-center">
@@ -144,14 +154,14 @@ export default function AlbumDetail({ albumId, onBack, onEdit, onAddImages }: Al
           </div>
           <div className="flex items-center space-x-3">
             <button
-              onClick={() => onEdit(album)}
+              onClick={() => setShowAlbumForm(true)}
               className="btn-outline text-secondary-500 border-secondary-500 hover:bg-secondary-500 hover:text-white"
             >
               <Edit className="w-4 h-4 mr-2" />
               Edit Album
             </button>
             <button
-              onClick={() => onAddImages(album.id)}
+              onClick={() => setShowImageUpload(true)}
               className="btn-primary"
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -195,7 +205,7 @@ export default function AlbumDetail({ albumId, onBack, onEdit, onAddImages }: Al
             <h3 className="text-lg font-medium text-dark-200 mb-2">No images yet</h3>
             <p className="text-dark-300 mb-4">Add some images to this album to get started.</p>
             <button
-              onClick={() => onAddImages(album.id)}
+              onClick={() => setShowImageUpload(true)}
               className="btn-primary"
             >
               <Plus className="w-4 h-4 mr-2" />
@@ -208,7 +218,7 @@ export default function AlbumDetail({ albumId, onBack, onEdit, onAddImages }: Al
               <div key={image.id} className="card bg-dark-800 border-dark-700 hover-lift">
                 <div className="relative group">
                   <img
-                    src={`${image.file_path}`}
+                    src={getImageUrl(image.file_path)}
                     alt={image.alt_text || 'Image'}
                     className="w-full h-48 object-cover rounded-t-lg"
                     onClick={() => setSelectedImage(image)}
@@ -267,7 +277,7 @@ export default function AlbumDetail({ albumId, onBack, onEdit, onAddImages }: Al
             </div>
             <div className="space-y-4">
               <img
-                src={`${selectedImage.file_path}`}
+                src={getImageUrl(selectedImage.file_path)}
                 alt={selectedImage.alt_text || 'Image'}
                 className="w-full max-h-96 object-contain rounded-lg"
               />
@@ -290,7 +300,7 @@ export default function AlbumDetail({ albumId, onBack, onEdit, onAddImages }: Al
                       Delete
                     </button>
                     <a
-                      href={`${selectedImage.file_path}`}
+                      href={getImageUrl(selectedImage.file_path)}
                       download={selectedImage.alt_text || 'Image'}
                       className="btn-outline text-sm"
                     >
@@ -303,6 +313,30 @@ export default function AlbumDetail({ albumId, onBack, onEdit, onAddImages }: Al
             </div>
           </div>
         </div>
+      )}
+
+      {/* Image Upload Modal */}
+      {showImageUpload && (
+        <ImageUpload
+          albumId={album.id}
+          onSuccess={() => {
+            setShowImageUpload(false)
+            loadAlbum()
+          }}
+          onClose={() => setShowImageUpload(false)}
+        />
+      )}
+
+      {/* Album Form Modal */}
+      {showAlbumForm && album && (
+        <AlbumForm
+          album={album}
+          onSuccess={() => {
+            setShowAlbumForm(false)
+            loadAlbum()
+          }}
+          onClose={() => setShowAlbumForm(false)}
+        />
       )}
     </div>
   )
