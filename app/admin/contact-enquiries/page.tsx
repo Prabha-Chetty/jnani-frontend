@@ -114,7 +114,7 @@ export default function ContactEnquiriesPage() {
         loadEnquiries()
         loadStats()
         if (selectedEnquiry?.id === enquiryId) {
-          setSelectedEnquiry(prev => prev ? { ...prev, status, admin_notes: notes } : null)
+          setSelectedEnquiry(prev => prev ? { ...prev, status: status as 'pending' | 'read' | 'replied' | 'closed', admin_notes: notes } : null)
         }
       } else {
         toast.error('Failed to update enquiry status')
