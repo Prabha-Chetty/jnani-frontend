@@ -7,6 +7,7 @@ import { BookOpen, Users, Award, Phone, Mail, MapPin, ArrowRight, Star, Calendar
 import useEmblaCarousel from 'embla-carousel-react'
 import { EmblaOptionsType } from 'embla-carousel'
 import PublicNavbar from '@/components/PublicNavbar'
+import ContactForm from '@/components/ContactForm'
 
 // Types for fetched data
 interface CarouselItem {
@@ -56,6 +57,8 @@ export default function Home() {
   const [events, setEvents] = useState<Event[]>([])
   const [contentData, setContentData] = useState<ContentData | null>(null)
   const [classes, setClasses] = useState<Class[]>([])
+  const [mapError, setMapError] = useState(false)
+  const [mapLoading, setMapLoading] = useState(true)
 
   const options: EmblaOptionsType = { loop: true }
   const [emblaRef, emblaApi] = useEmblaCarousel(options)
@@ -70,9 +73,94 @@ export default function Home() {
     // If it's already an embed URL, return as is
     if (mapLink.includes('maps/embed')) return mapLink
     
-    // For share links or other formats, return the default embed URL
+    // For share links, try to convert them to embed format
+    if (mapLink.includes('maps.google.com') || mapLink.includes('goo.gl/maps')) {
+      // Extract place ID or coordinates from share link
+      const placeMatch = mapLink.match(/place\/([^\/\?]+)/)
+      const coordMatch = mapLink.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/)
+      
+      if (placeMatch) {
+        return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=place_id:${placeMatch[1]}`
+      } else if (coordMatch) {
+        return `https://www.google.com/maps/embed/v1/view?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&center=${coordMatch[1]},${coordMatch[2]}&zoom=15`
+      }
+    }
+    
+    // For any other format, return the default embed URL
     return "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d124454.84980182622!2d77.4193186972656!3d12.89395300000002!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bae15f65ea10787%3A0x3467947a61ee7db4!2sJnani%20Study%20Centre!5e0!3m2!1sen!2sin!4v1750699889005!5m2!1sen!2sin"
   }
+
+  // Function to get a proper Google Maps URL for fallback
+  const getMapsUrl = (mapLink: string) => {
+    console.log('getMapsUrl input:', mapLink) // Debug log
+    
+    if (!mapLink) return "https://maps.google.com"
+    
+    // If the mapLink contains iframe HTML, extract the src attribute
+    if (mapLink.includes('<iframe')) {
+      const srcMatch = mapLink.match(/src="([^"]+)"/)
+      if (srcMatch) {
+        mapLink = srcMatch[1]
+        console.log('Extracted src from iframe:', mapLink) // Debug log
+      }
+    }
+    
+    // If it's already a proper Google Maps URL, return as is
+    if (mapLink.includes('maps.google.com') && !mapLink.includes('maps/embed')) {
+      return mapLink
+    }
+    
+    // If it's an embed URL, convert it to a regular maps URL
+    if (mapLink.includes('maps/embed')) {
+      // Extract coordinates from embed URL
+      const coordMatch = mapLink.match(/!3d(-?\d+\.\d+)!2d(-?\d+\.\d+)/)
+      if (coordMatch) {
+        const url = `https://maps.google.com/?q=${coordMatch[1]},${coordMatch[2]}`
+        console.log('Generated maps URL from coordinates:', url) // Debug log
+        return url
+      }
+      
+      // Extract place from embed URL
+      const placeMatch = mapLink.match(/!2s([^!]+)/)
+      if (placeMatch) {
+        const url = `https://maps.google.com/?q=${encodeURIComponent(placeMatch[1])}`
+        console.log('Generated maps URL from place:', url) // Debug log
+        return url
+      }
+    }
+    
+    // Default fallback
+    console.log('Using default maps URL') // Debug log
+    return "https://maps.google.com"
+  }
+
+  // Handle map iframe loading
+  const handleMapLoad = () => {
+    setMapLoading(false)
+    setMapError(false)
+  }
+
+  const handleMapError = () => {
+    setMapLoading(false)
+    setMapError(true)
+  }
+
+  // Set timeout for map loading
+  useEffect(() => {
+    if (contentData?.map_link) {
+      setMapLoading(true)
+      setMapError(false)
+      
+      const timeout = setTimeout(() => {
+        if (mapLoading) {
+          setMapError(true)
+          setMapLoading(false)
+        }
+      }, 10000) // 10 second timeout
+
+      return () => clearTimeout(timeout)
+    }
+  }, [contentData?.map_link])
 
   useEffect(() => {
     // Fetch all data
@@ -92,7 +180,11 @@ export default function Home() {
 
         if (carouselRes.ok) setCarouselItems(await carouselRes.json())
         if (eventsRes.ok) setEvents(await eventsRes.json())
-        if (contentRes.ok) setContentData(await contentRes.json())
+        if (contentRes.ok) {
+          const content = await contentRes.json()
+          console.log('Content data:', content) // Debug log
+          setContentData(content)
+        }
         if (classesRes.ok) setClasses(await classesRes.json())
 
       } catch (error) {
@@ -372,43 +464,39 @@ export default function Home() {
                 <span>{contentData?.contact_us.phone || '+91 98765 43210'}</span>
               </p>
               <div className="w-full h-64 bg-dark-800 rounded-lg shadow-inner overflow-hidden">
-                <iframe
-                  src={getEmbedUrl(contentData?.map_link || "")}
-                  width="100%"
-                  height="100%"
-                  style={{ border: 0 }}
-                  allowFullScreen={false}
-                  loading="lazy"
-                  referrerPolicy="no-referrer-when-downgrade"
-                ></iframe>
+                {mapLoading && (
+                  <div className="flex items-center justify-center h-full bg-dark-700 rounded-lg">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-secondary-500"></div>
+                  </div>
+                )}
+                {!mapLoading && !mapError ? (
+                  <iframe
+                    src={getEmbedUrl(contentData?.map_link || "")}
+                    width="100%"
+                    height="100%"
+                    style={{ border: 0 }}
+                    allowFullScreen={false}
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    onLoad={handleMapLoad}
+                    onError={handleMapError}
+                  ></iframe>
+                ) : !mapLoading && mapError ? (
+                  <div className="flex items-center justify-center h-full bg-dark-700 rounded-lg">
+                    <a 
+                      href={getMapsUrl(contentData?.map_link || "")} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-secondary-400 hover:text-secondary-300 flex items-center"
+                    >
+                      <MapPin className="w-5 h-5 mr-2" />
+                      View on Google Maps
+                    </a>
+                  </div>
+                ) : null}
               </div>
             </div>
-            <div className="bg-dark-800 p-8 rounded-lg shadow-2xl">
-              <h3 className="text-xl font-semibold text-white mb-6">Send us a Message</h3>
-              <form action="#" method="POST" className="space-y-6">
-                <div>
-                  <label htmlFor="name" className="sr-only">Full Name</label>
-                  <input type="text" name="name" id="name" placeholder="Full Name" className="input-field w-full" />
-                </div>
-                <div>
-                  <label htmlFor="email" className="sr-only">Email</label>
-                  <input type="email" name="email" id="email" placeholder="Email Address" className="input-field w-full" />
-                </div>
-                <div>
-                  <label htmlFor="phone" className="sr-only">Phone Number</label>
-                  <input type="tel" name="phone" id="phone" placeholder="Phone Number" className="input-field w-full" />
-                </div>
-                <div>
-                  <label htmlFor="message" className="sr-only">Message</label>
-                  <textarea name="message" id="message" rows={4} placeholder="Your Message" className="input-field w-full resize-none"></textarea>
-                </div>
-                <div>
-                  <button type="submit" className="btn-primary w-full">
-                    Send Message
-                  </button>
-                </div>
-              </form>
-            </div>
+            <ContactForm />
           </div>
         </div>
       </section>

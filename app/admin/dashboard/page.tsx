@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Users, BookOpen, Calendar, TrendingUp, Settings, LogOut, ArrowRight, Star, FileText, ImageIcon } from 'lucide-react'
+import { Users, BookOpen, Calendar, TrendingUp, Settings, LogOut, ArrowRight, Star, FileText, ImageIcon, MessageCircle } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/components/admin/AuthProvider'
 
@@ -44,6 +44,7 @@ export default function AdminDashboard() {
     { title: 'Manage Classes', description: 'Configure class levels and settings', href: '/admin/classes', icon: <Settings className="w-6 h-6" /> },
     { title: 'Content Management', description: 'Update about, contact, and social media content', href: '/admin/content', icon: <FileText className="w-6 h-6" /> },
     { title: 'Gallery Management', description: 'Organize images into albums and collections', href: '/admin/gallery', icon: <ImageIcon className="w-6 h-6" /> },
+    { title: 'Contact Enquiries', description: 'View and manage contact form submissions', href: '/admin/contact-enquiries', icon: <MessageCircle className="w-6 h-6" /> },
   ]
 
   return (

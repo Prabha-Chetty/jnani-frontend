@@ -20,7 +20,8 @@ import {
   Calendar,
   Library,
   GraduationCap,
-  ImageIcon
+  ImageIcon,
+  MessageCircle
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from './AuthProvider'
@@ -38,9 +39,9 @@ export default function AdminNavbar() {
     { name: 'Events', href: '/admin/events', icon: <Calendar className="w-5 h-5" /> },
     { name: 'Library', href: '/admin/library', icon: <Library className="w-5 h-5" /> },
     { name: 'Classes', href: '/admin/classes', icon: <GraduationCap className="w-5 h-5" /> },
-    { name: 'Courses', href: '/admin/courses', icon: <BookOpen className="w-5 h-5" /> },
     { name: 'Content', href: '/admin/content', icon: <FileText className="w-5 h-5" /> },
     { name: 'Gallery', href: '/admin/gallery', icon: <ImageIcon className="w-5 h-5" /> },
+    { name: 'Contact Enquiries', href: '/admin/contact-enquiries', icon: <MessageCircle className="w-5 h-5" /> },
   ]
 
   const settingsNavigation = [
