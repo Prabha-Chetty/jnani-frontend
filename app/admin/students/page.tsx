@@ -3,45 +3,38 @@
 import { useState, useEffect } from 'react'
 import { Plus } from 'lucide-react'
 import { useAuth } from '@/components/admin/AuthProvider'
+import { useAuthenticatedFetch } from '@/components/admin/useAuthenticatedFetch'
 import { Student } from '@/types'
-import axios from 'axios'
 import StudentList from '../../../components/admin/students/StudentList'
 import StudentForm from '../../../components/admin/students/StudentForm'
+import toast from 'react-hot-toast'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
-async function getStudents(token: string): Promise<Student[]> {
-    const { data } = await axios.get(`${API_URL}/students/`, {
-        headers: { Authorization: `Bearer ${token}` }
-    })
-    return data
-}
-
-async function deleteStudent(id: string, token: string) {
-    await axios.delete(`${API_URL}/students/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-    })
-}
-
 export default function StudentsPage() {
-    const { getAuthToken } = useAuth()
+    const { authenticatedFetch } = useAuthenticatedFetch()
     const [students, setStudents] = useState<Student[]>([])
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [selectedStudent, setSelectedStudent] = useState<Student | null>(null)
     const [loading, setLoading] = useState(true)
 
     const fetchStudents = async () => {
-        const token = getAuthToken()
-        if (!token) {
-            setLoading(false)
-            return
-        }
         setLoading(true)
         try {
-            const data = await getStudents(token)
-            setStudents(data)
+            const response = await authenticatedFetch(`${API_URL}/students/`)
+            if (response.ok) {
+                const data = await response.json()
+                setStudents(data)
+            } else {
+                toast.error('Failed to fetch students')
+            }
         } catch (error) {
             console.error("Failed to fetch students", error)
+            if (error instanceof Error && error.message.includes('Session expired')) {
+                // Auto logout will be handled by the fetch hook
+                return
+            }
+            toast.error('Failed to fetch students')
         } finally {
             setLoading(false)
         }
@@ -49,7 +42,7 @@ export default function StudentsPage() {
 
     useEffect(() => {
         fetchStudents()
-    }, [getAuthToken])
+    }, [])
 
     const handleAdd = () => {
         setSelectedStudent(null)
@@ -62,10 +55,25 @@ export default function StudentsPage() {
     }
 
     const handleDelete = async (id: string) => {
-        const token = getAuthToken()
-        if (token && window.confirm('Are you sure you want to delete this student?')) {
-            await deleteStudent(id, token)
-            fetchStudents()
+        if (window.confirm('Are you sure you want to delete this student?')) {
+            try {
+                const response = await authenticatedFetch(`${API_URL}/students/${id}`, {
+                    method: 'DELETE'
+                })
+                if (response.ok) {
+                    toast.success('Student deleted successfully')
+                    fetchStudents()
+                } else {
+                    toast.error('Failed to delete student')
+                }
+            } catch (error) {
+                console.error("Failed to delete student", error)
+                if (error instanceof Error && error.message.includes('Session expired')) {
+                    // Auto logout will be handled by the fetch hook
+                    return
+                }
+                toast.error('Failed to delete student')
+            }
         }
     }
 

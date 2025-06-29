@@ -136,11 +136,11 @@ export default function AdminLogin() {
               </button>
             </div>
 
-            <div className="text-center">
+            {/* <div className="text-center">
               <p className="text-xs text-dark-400">
                 Demo Credentials: admin@jnanistudycenter.com / admin123
               </p>
-            </div>
+            </div> */}
           </form>
         </div>
 
