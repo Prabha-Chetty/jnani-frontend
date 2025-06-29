@@ -113,8 +113,10 @@ export default function ContactEnquiriesPage() {
         toast.success('Enquiry status updated successfully')
         loadEnquiries()
         loadStats()
-        if (selectedEnquiry?.id === enquiryId) {
-          setSelectedEnquiry(prev => prev ? { ...prev, status: status as 'pending' | 'read' | 'replied' | 'closed', admin_notes: notes } : null)
+        const allowedStatuses = ['pending', 'read', 'replied', 'closed'] as const;
+        type AllowedStatus = typeof allowedStatuses[number];
+        if (selectedEnquiry?.id === enquiryId && allowedStatuses.includes(status as AllowedStatus)) {
+          setSelectedEnquiry(prev => prev ? { ...prev, status: status as AllowedStatus, admin_notes: notes } : null)
         }
       } else {
         toast.error('Failed to update enquiry status')
