@@ -8,31 +8,33 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Primary: Deep navy blue with lighter accents
+        // Primary: deeper warm taupe — anchored at #8e6f60 (the brand primary).
+        // Used as structural chrome (sidebars, headers), CTAs, and active states.
         primary: {
-          50: '#f8fafc',
-          100: '#f1f5f9',
-          200: '#e2e8f0',
-          300: '#cbd5e1',
-          400: '#94a3b8',
-          500: '#64748b',
-          600: '#475569',
-          700: '#334155',
-          800: '#1e293b',
-          900: '#0f172a',
+          50: '#f5f0ed',
+          100: '#e6dad3',
+          200: '#cdb5a8',
+          300: '#b09180',
+          400: '#9c7e6e',
+          500: '#8e6f60',
+          600: '#735a4e',
+          700: '#5a463d',
+          800: '#41342c',
+          900: '#2c231d',
         },
-        // Secondary: Gold/amber accents for highlights
+        // Secondary: soft cream — anchored at #faf4e7 (the brand secondary).
+        // Used as the page canvas, surface tints, and text on taupe chrome.
         secondary: {
-          50: '#fffbeb',
-          100: '#fef3c7',
-          200: '#fde68a',
-          300: '#fcd34d',
-          400: '#fbbf24',
-          500: '#f59e0b',
-          600: '#d97706',
-          700: '#b45309',
-          800: '#92400e',
-          900: '#78350f',
+          50: '#fdfaf3',
+          100: '#faf4e7',
+          200: '#f3e6c8',
+          300: '#ead5a3',
+          400: '#ddbf73',
+          500: '#c9a346',
+          600: '#a98735',
+          700: '#856a2a',
+          800: '#685225',
+          900: '#483820',
         },
         // Success: Emerald green
         success: {
@@ -73,19 +75,21 @@ module.exports = {
           800: '#991b1b',
           900: '#7f1d1d',
         },
-        // Dark theme backgrounds
+        // Surface palette — semantically inverted so existing `dark-*` class
+        // names keep working. 900 = body background (cream), 50 = darkest text.
+        // Tuned to the warm parchment/leaf tones in the Jnani logo.
         dark: {
-          50: '#f8fafc',
-          100: '#f1f5f9',
-          200: '#e2e8f0',
-          300: '#cbd5e1',
-          400: '#94a3b8',
-          500: '#64748b',
-          600: '#475569',
-          700: '#334155',
-          800: '#1e293b',
-          900: '#0f172a',
-          950: '#020617',
+          50: '#2d1f12',   // darkest text — was lightest text
+          100: '#3f2e1e',  // very dark warm brown
+          200: '#5b4937',  // dark brown
+          300: '#78635a',  // muted body text
+          400: '#a89884',  // placeholder / disabled text
+          500: '#c4b29c',  // very muted
+          600: '#d6c5a8',  // border (slightly darker)
+          700: '#e7d8c1',  // border / subtle divider
+          800: '#ffffff',  // card / surface
+          900: '#faf4e7',  // body background (warm parchment) — matches secondary-100
+          950: '#fdfaf3',  // lightest cream
         },
       },
       fontFamily: {

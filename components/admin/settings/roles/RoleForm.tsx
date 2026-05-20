@@ -22,7 +22,7 @@ type FormData = {
 }
 
 async function getPermissions(token: string): Promise<Permission[]> {
-    const { data } = await axios.get(`${API_URL}/permissions/`, {
+    const { data } = await axios.get(`${API_URL}/admin/permissions/`, {
         headers: { Authorization: `Bearer ${token}` }
     })
     return data
@@ -37,7 +37,9 @@ export default function RoleForm({ role, onSuccess, onClose }: RoleFormProps) {
     useEffect(() => {
         const token = getAuthToken()
         if (token) {
-            getPermissions(token).then(setPermissions)
+            getPermissions(token)
+                .then(setPermissions)
+                .catch((err) => console.error('Failed to load permissions', err))
         }
     }, [getAuthToken])
     
@@ -63,11 +65,11 @@ export default function RoleForm({ role, onSuccess, onClose }: RoleFormProps) {
 
         try {
             if (role) {
-                await axios.put(`${API_URL}/roles/${role.id}`, data, {
+                await axios.put(`${API_URL}/admin/roles/${role.id}`, data, {
                     headers: { Authorization: `Bearer ${token}` }
                 })
             } else {
-                await axios.post(`${API_URL}/roles/`, data, {
+                await axios.post(`${API_URL}/admin/roles/`, data, {
                     headers: { Authorization: `Bearer ${token}` }
                 })
             }

@@ -11,6 +11,7 @@
     "dev:full": "./start.sh"
   },
   "dependencies": {
+    "@types/react-signature-canvas": "^1.0.7",
     "axios": "^1.6.2",
     "clsx": "^2.0.0",
     "embla-carousel-react": "^8.6.0",
@@ -20,6 +21,7 @@
     "react-dom": "^18",
     "react-hook-form": "^7.48.2",
     "react-hot-toast": "^2.4.1",
+    "react-signature-canvas": "^1.1.0-alpha.2",
     "tailwind-merge": "^2.0.0"
   },
   "devDependencies": {

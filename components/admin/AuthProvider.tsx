@@ -161,22 +161,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, [isAuthenticated, authToken])
 
-  // Set up global fetch interceptor to handle 401 responses
+  // Set up global fetch interceptor to handle 401 responses.
+  // Wrap in try/catch so cancelled/network-error fetches (common during HMR full
+  // reloads) don't trigger Next.js's dev error overlay and lock the UI.
   useEffect(() => {
+    if (typeof window === 'undefined') return
     const originalFetch = window.fetch
-    window.fetch = async (...args) => {
-      const response = await originalFetch(...args)
-      
-      // If we get a 401 Unauthorized response, logout the user
-      if (response.status === 401 && isAuthenticated) {
-        handleAutoLogout()
+    const patchedFetch: typeof window.fetch = async (...args) => {
+      try {
+        const response = await originalFetch(...args)
+        if (response.status === 401 && isAuthenticated) {
+          handleAutoLogout()
+        }
+        return response
+      } catch (err) {
+        throw err
       }
-      
-      return response
     }
+    window.fetch = patchedFetch
 
     return () => {
-      window.fetch = originalFetch
+      // Only restore if our patch is still the active one — avoids clobbering
+      // a later patch installed by HMR re-mounts.
+      if (window.fetch === patchedFetch) {
+        window.fetch = originalFetch
+      }
     }
   }, [isAuthenticated])
 

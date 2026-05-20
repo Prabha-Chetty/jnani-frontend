@@ -8,10 +8,10 @@ import axios from 'axios'
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 async function getPermissions(token: string): Promise<Permission[]> {
-    const { data } = await axios.get(`${API_URL}/permissions/`, {
+    const { data } = await axios.get(`${API_URL}/admin/permissions/`, {
         headers: { Authorization: `Bearer ${token}` }
     })
-    return data
+    return (data as any[]).map((p) => ({ ...p, id: p.id ?? p._id }))
 }
 
 function PermissionList({ permissions }: { permissions: Permission[] }) {
