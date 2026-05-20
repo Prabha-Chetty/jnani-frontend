@@ -4,36 +4,35 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-/* Base dark theme styles */
+/* Base light theme styles — palette tuned to the warm parchment + leaves
+   of the Jnani logo. */
 @layer base {
   body {
     font-family: 'Inter', sans-serif;
-    background-color: #0f172a; /* dark-900 */
-    color: #f8fafc; /* dark-50 */
+    background-color: #faf4e7; /* secondary-100 — warm parchment canvas */
+    color: #2d1f12; /* dark-50 — warm near-black */
     transition: all 0.3s ease;
   }
 
-  /* Smooth scrolling */
   html {
     scroll-behavior: smooth;
   }
 
-  /* Custom scrollbar for dark theme */
   ::-webkit-scrollbar {
     width: 8px;
   }
 
   ::-webkit-scrollbar-track {
-    background: #1e293b; /* dark-800 */
+    background: #faf4e7;
   }
 
   ::-webkit-scrollbar-thumb {
-    background: #475569; /* dark-600 */
+    background: #d6c5a8;
     border-radius: 4px;
   }
 
   ::-webkit-scrollbar-thumb:hover {
-    background: #64748b; /* dark-500 */
+    background: #c4b29c;
   }
 }
 
@@ -54,11 +53,11 @@
   }
 
   .btn-outline {
-    @apply border border-dark-600 text-dark-200 hover:bg-dark-700 hover:text-white font-medium py-2 px-4 rounded-lg transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-dark-900;
+    @apply border border-dark-600 text-dark-100 hover:bg-dark-700 hover:text-dark-50 font-medium py-2 px-4 rounded-lg transition-all duration-200 focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-dark-900;
   }
 
   .btn-ghost {
-    @apply text-dark-300 hover:text-white hover:bg-dark-700 font-medium py-2 px-4 rounded-lg transition-all duration-200;
+    @apply text-dark-200 hover:text-dark-50 hover:bg-dark-700 font-medium py-2 px-4 rounded-lg transition-all duration-200;
   }
 
   /* Input styles */
@@ -98,11 +97,11 @@
   }
 
   .nav-item-active {
-    @apply bg-primary-600 text-white shadow-lg;
+    @apply bg-primary-700 text-secondary-100 shadow-lg;
   }
 
   .nav-item-inactive {
-    @apply text-dark-300 hover:bg-dark-700 hover:text-white;
+    @apply text-secondary-100/80 hover:bg-primary-600 hover:text-secondary-50;
   }
 
   /* Status indicators */
@@ -129,9 +128,9 @@
     text-wrap: balance;
   }
 
-  /* Glass morphism effect */
+  /* Brand chrome — taupe with cream text. Used for top navs and headers. */
   .glass {
-    @apply bg-dark-800/80 backdrop-blur-sm border border-dark-700/50;
+    @apply bg-primary-500/95 backdrop-blur-sm border-b border-primary-600/40 text-secondary-100;
   }
 
   /* Gradient backgrounds */

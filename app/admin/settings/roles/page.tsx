@@ -14,7 +14,7 @@ async function getRoles(token: string): Promise<Role[]> {
     const { data } = await axios.get(`${API_URL}/admin/roles/`, {
         headers: { Authorization: `Bearer ${token}` }
     })
-    return data
+    return (data as any[]).map((r) => ({ ...r, id: r.id ?? r._id }))
 }
 
 async function deleteRole(id: string, token: string) {

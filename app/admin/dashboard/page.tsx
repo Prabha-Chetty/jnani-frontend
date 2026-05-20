@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
-import { Users, BookOpen, Calendar, TrendingUp, Settings, LogOut, ArrowRight, Star, FileText, ImageIcon, MessageCircle } from 'lucide-react'
+import { Users, BookOpen, Calendar, TrendingUp, Settings, LogOut, ArrowRight, Star, FileText, ImageIcon, MessageCircle, ClipboardCheck, Plus } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from '@/components/admin/AuthProvider'
 
@@ -38,6 +38,8 @@ export default function AdminDashboard() {
   ]
 
   const quickActions = [
+    { title: 'New Admission', description: 'Capture a new admission with photo + signature', href: '/admin/admission', icon: <Plus className="w-6 h-6" />, accent: true },
+    { title: 'Admissions', description: 'Review pending and approved applications', href: '/admin/admissions', icon: <ClipboardCheck className="w-6 h-6" /> },
     { title: 'Manage Students', description: 'Add, edit, or remove student records', href: '/admin/students', icon: <Users className="w-6 h-6" /> },
     { title: 'Manage Events', description: 'Create and manage upcoming events', href: '/admin/events', icon: <Calendar className="w-6 h-6" /> },
     { title: 'Manage Library', description: 'Upload and organize digital resources', href: '/admin/library', icon: <BookOpen className="w-6 h-6" /> },
@@ -102,10 +104,10 @@ export default function AdminDashboard() {
         <div className="mb-8">
           <h2 className="text-2xl font-bold text-dark-50 mb-6">Quick Actions</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {quickActions.map((action, index) => (
-              <div key={index} className="card p-6 hover-lift cursor-pointer group" onClick={() => router.push(action.href)}>
+            {quickActions.map((action: any, index) => (
+              <div key={index} className={`card p-6 hover-lift cursor-pointer group ${action.accent ? 'ring-2 ring-secondary-500/50 bg-gradient-to-br from-secondary-500/10 to-transparent' : ''}`} onClick={() => router.push(action.href)}>
                 <div className="flex items-center mb-4">
-                  <div className="p-3 rounded-lg bg-gradient-to-br from-primary-500 to-primary-600 text-white group-hover:scale-110 transition-transform duration-200">
+                  <div className={`p-3 rounded-lg bg-gradient-to-br ${action.accent ? 'from-secondary-500 to-secondary-600' : 'from-primary-500 to-primary-600'} text-white group-hover:scale-110 transition-transform duration-200`}>
                     {action.icon}
                   </div>
                 </div>

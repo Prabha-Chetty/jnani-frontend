@@ -1,8 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    appDir: true,
-  },
   images: {
     remotePatterns: [
       {
@@ -22,8 +19,12 @@ const nextConfig = {
         hostname: 'jnani-backend.onrender.com',
         pathname: '/media/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        pathname: '/**',
+      },
     ],
-    domains: ['localhost', 'jnani-backend.onrender.com'],
   },
   async headers() {
     return [

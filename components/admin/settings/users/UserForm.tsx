@@ -24,7 +24,7 @@ type FormData = {
 }
 
 async function getRoles(token: string): Promise<Role[]> {
-    const { data } = await axios.get(`${API_URL}/roles/`, {
+    const { data } = await axios.get(`${API_URL}/admin/roles/`, {
         headers: { Authorization: `Bearer ${token}` }
     })
     return data
@@ -39,7 +39,9 @@ export default function UserForm({ user, onSuccess, onClose }: UserFormProps) {
     useEffect(() => {
         const token = getAuthToken()
         if (token) {
-            getRoles(token).then(setRoles)
+            getRoles(token)
+                .then(setRoles)
+                .catch((err) => console.error('Failed to load roles', err))
         }
     }, [getAuthToken])
     

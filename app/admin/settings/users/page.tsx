@@ -14,7 +14,8 @@ async function getUsers(token: string): Promise<User[]> {
     const { data } = await axios.get(`${API_URL}/admin/users/`, {
         headers: { Authorization: `Bearer ${token}` }
     })
-    return data
+    // Backend serializes _id via Pydantic alias; normalise to id for the UI.
+    return (data as any[]).map((u) => ({ ...u, id: u.id ?? u._id }))
 }
 
 async function deleteUser(id: string, token: string) {
@@ -62,11 +63,18 @@ export default function UsersPage() {
     }
 
     const handleDelete = async (id: string) => {
+        if (!id) {
+            console.error('No user id provided for delete')
+            return
+        }
         if (window.confirm('Are you sure you want to delete this user?')) {
             const token = getAuthToken()
-            if (token) {
+            if (!token) return
+            try {
                 await deleteUser(id, token)
                 fetchUsers(token)
+            } catch (err) {
+                console.error('Failed to delete user', err)
             }
         }
     }
