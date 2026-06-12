@@ -22,7 +22,9 @@ import {
   GraduationCap,
   ImageIcon,
   MessageCircle,
-  ClipboardCheck
+  ClipboardCheck,
+  CalendarCheck,
+  UserCheck
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { useAuth } from './AuthProvider'
@@ -31,13 +33,15 @@ export default function AdminNavbar() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const pathname = usePathname()
-  const { logout } = useAuth()
+  const { logout, isAdmin } = useAuth()
 
-  const navigation = [
+  const adminNavigation = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: <Home className="w-5 h-5" /> },
     { name: 'Admissions', href: '/admin/admissions', icon: <ClipboardCheck className="w-5 h-5" /> },
     { name: 'Students', href: '/admin/students', icon: <Users className="w-5 h-5" /> },
     { name: 'Faculties', href: '/admin/faculties', icon: <Briefcase className="w-5 h-5" /> },
+    { name: 'Staff Attendance', href: '/admin/attendance', icon: <CalendarCheck className="w-5 h-5" /> },
+    { name: 'Student Attendance', href: '/admin/student-attendance', icon: <UserCheck className="w-5 h-5" /> },
     { name: 'Events', href: '/admin/events', icon: <Calendar className="w-5 h-5" /> },
     { name: 'Library', href: '/admin/library', icon: <Library className="w-5 h-5" /> },
     { name: 'Classes', href: '/admin/classes', icon: <GraduationCap className="w-5 h-5" /> },
@@ -45,6 +49,8 @@ export default function AdminNavbar() {
     { name: 'Gallery', href: '/admin/gallery', icon: <ImageIcon className="w-5 h-5" /> },
     { name: 'Contact Enquiries', href: '/admin/contact-enquiries', icon: <MessageCircle className="w-5 h-5" /> },
   ]
+
+  const navigation = adminNavigation
 
   const settingsNavigation = [
     { name: 'Users', href: '/admin/settings/users', icon: <Users className="w-5 h-5" /> },
@@ -106,8 +112,9 @@ export default function AdminNavbar() {
         <nav className="mt-8 px-4">
           <div className="space-y-2">
             {navigation.map((item) => <NavItem key={item.name} item={item} />)}
-            
-            {/* Settings Dropdown */}
+
+            {/* Settings Dropdown (admin only) */}
+            {isAdmin && (
             <div>
                 <button
                     onClick={() => setSettingsOpen(!settingsOpen)}
@@ -125,6 +132,7 @@ export default function AdminNavbar() {
                     </div>
                 )}
             </div>
+            )}
           </div>
 
           <div className="mt-8 pt-8 border-t border-primary-600">

@@ -11,7 +11,8 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 type FacultyFormProps = {
     faculty: Faculty | null;
-    onSuccess: () => void;
+    // On create, the new faculty's id is passed so callers can auto-select it.
+    onSuccess: (newId?: string) => void;
     onClose: () => void;
 }
 
@@ -79,10 +80,11 @@ export default function FacultyForm({ faculty, onSuccess, onClose }: FacultyForm
             }
             if (faculty) {
                 await axios.put(`${API_URL}/admin/faculties/${faculty.id}`, formData, config)
+                onSuccess()
             } else {
-                await axios.post(`${API_URL}/admin/faculties/`, formData, config)
+                const res = await axios.post(`${API_URL}/admin/faculties/`, formData, config)
+                onSuccess(res?.data?.id)
             }
-            onSuccess()
         } catch (error) {
             console.error('Failed to save faculty', error)
         } finally {
