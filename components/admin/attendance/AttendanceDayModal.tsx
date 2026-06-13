@@ -13,8 +13,7 @@ type Props = {
   canEdit: boolean      // admins can edit existing entries
   canDelete: boolean    // admins can delete existing entries
   facultyLabel?: string // shown for context (admin view)
-  classLength: number   // minutes per class
-  ratePerClass: number  // Rs per completed class
+  ratePerDay: number    // flat Rs paid per day attended
   saving?: boolean
   onClose: () => void
   onSave: (payload: DayModalPayload, entryId: string | null) => void
@@ -27,8 +26,7 @@ export default function AttendanceDayModal({
   canEdit,
   canDelete,
   facultyLabel,
-  classLength,
-  ratePerClass,
+  ratePerDay,
   saving = false,
   onClose,
   onSave,
@@ -42,14 +40,6 @@ export default function AttendanceDayModal({
 
   // Existing entry that the current user cannot edit -> read-only view.
   const readOnly = !!entry && !canEdit
-
-  // Live preview of classes + amount for the entered minutes.
-  const parsedMinutes = Number(minutes)
-  const previewClasses =
-    Number.isInteger(parsedMinutes) && parsedMinutes > 0 && classLength > 0
-      ? Math.floor(parsedMinutes / classLength)
-      : 0
-  const previewAmount = previewClasses * ratePerClass
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -88,8 +78,7 @@ export default function AttendanceDayModal({
             <div>
               <p className="text-sm text-dark-400">Time Taught</p>
               <p className="text-lg font-semibold text-dark-50">
-                {entry!.minutes_taken} min · {entry!.classes} class
-                {entry!.classes === 1 ? '' : 'es'} · ₹{entry!.amount}
+                {entry!.minutes_taken} min · ₹{entry!.amount} for the day
               </p>
             </div>
             {entry!.notes && (
@@ -133,14 +122,9 @@ export default function AttendanceDayModal({
                 placeholder="e.g. 90"
               />
               <p className="text-xs text-dark-400 mt-1">
-                {classLength} min = 1 class @ ₹{ratePerClass}.{' '}
-                {previewClasses > 0 ? (
-                  <span className="text-secondary-400">
-                    {previewClasses} class{previewClasses === 1 ? '' : 'es'} → ₹{previewAmount}
-                  </span>
-                ) : (
-                  'Enter whole minutes.'
-                )}
+                Enter whole minutes. A flat{' '}
+                <span className="text-secondary-400">₹{ratePerDay}</span> is paid for the day,
+                regardless of minutes.
               </p>
             </div>
             <div>

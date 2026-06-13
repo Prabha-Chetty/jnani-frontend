@@ -29,23 +29,22 @@ export function exportAttendanceCSV(
   includeFaculty = false,
 ) {
   const headers = includeFaculty
-    ? ['Faculty', 'Date', 'Day', 'Minutes', 'Classes', 'Amount (Rs)', 'Notes']
-    : ['Date', 'Day', 'Minutes', 'Classes', 'Amount (Rs)', 'Notes']
+    ? ['Faculty', 'Date', 'Day', 'Minutes', 'Amount (Rs)', 'Notes']
+    : ['Date', 'Day', 'Minutes', 'Amount (Rs)', 'Notes']
 
   const lines = [headers.join(',')]
   rows.forEach((r) => {
     const cells = includeFaculty
-      ? [r.faculty_name ?? '', r.date, r.day, r.minutes_taken, r.classes, r.amount, r.notes ?? '']
-      : [r.date, r.day, r.minutes_taken, r.classes, r.amount, r.notes ?? '']
+      ? [r.faculty_name ?? '', r.date, r.day, r.minutes_taken, r.amount, r.notes ?? '']
+      : [r.date, r.day, r.minutes_taken, r.amount, r.notes ?? '']
     lines.push(cells.map(csvCell).join(','))
   })
 
   const totalMinutes = rows.reduce((sum, r) => sum + (r.minutes_taken || 0), 0)
-  const totalClasses = rows.reduce((sum, r) => sum + (r.classes || 0), 0)
   const totalAmount = rows.reduce((sum, r) => sum + (r.amount || 0), 0)
   const totalRow = includeFaculty
-    ? ['', '', 'Total', totalMinutes, totalClasses, totalAmount, '']
-    : ['', 'Total', totalMinutes, totalClasses, totalAmount, '']
+    ? ['', '', 'Total', totalMinutes, totalAmount, '']
+    : ['', 'Total', totalMinutes, totalAmount, '']
   lines.push(totalRow.map(csvCell).join(','))
 
   downloadBlob(lines.join('\n'), filename, 'text/csv;charset=utf-8;')
@@ -62,26 +61,25 @@ export function printAttendance(
   includeFaculty = false,
 ) {
   const totalMinutes = rows.reduce((sum, r) => sum + (r.minutes_taken || 0), 0)
-  const totalClasses = rows.reduce((sum, r) => sum + (r.classes || 0), 0)
   const totalAmount = rows.reduce((sum, r) => sum + (r.amount || 0), 0)
 
   const head = includeFaculty
-    ? '<th>Faculty</th><th>Date</th><th>Day</th><th>Minutes</th><th>Classes</th><th>Amount (Rs)</th><th>Signature</th>'
-    : '<th>Date</th><th>Day</th><th>Minutes</th><th>Classes</th><th>Amount (Rs)</th><th>Signature</th>'
+    ? '<th>Faculty</th><th>Date</th><th>Day</th><th>Minutes</th><th>Amount (Rs)</th><th>Signature</th>'
+    : '<th>Date</th><th>Day</th><th>Minutes</th><th>Amount (Rs)</th><th>Signature</th>'
 
   const body = rows
     .map((r) => {
       const cols = includeFaculty
-        ? `<td>${r.faculty_name ?? ''}</td><td>${prettyDate(r.date)}</td><td>${r.day}</td><td>${r.minutes_taken}</td><td>${r.classes}</td><td>${r.amount}</td><td></td>`
-        : `<td>${prettyDate(r.date)}</td><td>${r.day}</td><td>${r.minutes_taken}</td><td>${r.classes}</td><td>${r.amount}</td><td></td>`
+        ? `<td>${r.faculty_name ?? ''}</td><td>${prettyDate(r.date)}</td><td>${r.day}</td><td>${r.minutes_taken}</td><td>${r.amount}</td><td></td>`
+        : `<td>${prettyDate(r.date)}</td><td>${r.day}</td><td>${r.minutes_taken}</td><td>${r.amount}</td><td></td>`
       return `<tr>${cols}</tr>`
     })
     .join('')
 
   // Columns before the "Minutes" total cell.
   const labelSpan = includeFaculty ? 3 : 2
-  const totalRow = `<tr class="total"><td colspan="${labelSpan}">Total</td><td>${totalMinutes}</td><td>${totalClasses}</td><td>${totalAmount}</td><td></td></tr>`
-  const totalCols = (includeFaculty ? 7 : 6)
+  const totalRow = `<tr class="total"><td colspan="${labelSpan}">Total</td><td>${totalMinutes}</td><td>${totalAmount}</td><td></td></tr>`
+  const totalCols = (includeFaculty ? 6 : 5)
 
   const html = `<!DOCTYPE html>
 <html>

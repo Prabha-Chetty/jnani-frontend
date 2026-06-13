@@ -27,8 +27,7 @@ export default function AdminAttendancePage() {
   const [saving, setSaving] = useState(false)
   const [modalDate, setModalDate] = useState<string | null>(null)
   const [modalEntry, setModalEntry] = useState<Attendance | null>(null)
-  const [classLength, setClassLength] = useState(45)
-  const [ratePerClass, setRatePerClass] = useState(100)
+  const [ratePerDay, setRatePerDay] = useState(500)
 
   const authHeader = () => ({ Authorization: `Bearer ${getAuthToken()}` })
 
@@ -48,8 +47,7 @@ export default function AdminAttendancePage() {
     axios
       .get(`${API_URL}/admin/attendance/config`, { headers: authHeader() })
       .then(({ data }) => {
-        setClassLength(data.class_length_minutes)
-        setRatePerClass(data.rate_per_class)
+        setRatePerDay(data.rate_per_day)
       })
       .catch(() => {/* fall back to defaults */})
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -165,7 +163,6 @@ export default function AdminAttendancePage() {
     faculties.find((f) => f.id === selectedFaculty)?.name || ''
   const periodLabel = `${MONTHS[month - 1]} ${year}`
   const totalMinutes = entries.reduce((sum, e) => sum + (e.minutes_taken || 0), 0)
-  const totalClasses = entries.reduce((sum, e) => sum + (e.classes || 0), 0)
   const totalAmount = entries.reduce((sum, e) => sum + (e.amount || 0), 0)
 
   const handleExportCSV = () =>
@@ -246,10 +243,6 @@ export default function AdminAttendancePage() {
               <div className="mt-3 text-sm text-dark-300">
                 Total this month:{' '}
                 <span className="font-semibold text-secondary-400">{totalMinutes} min</span>{' · '}
-                <span className="font-semibold text-secondary-400">
-                  {totalClasses} class{totalClasses === 1 ? '' : 'es'}
-                </span>
-                {' · '}
                 <span className="font-semibold text-secondary-400">₹{totalAmount}</span>{' '}
                 over {entries.length} day{entries.length === 1 ? '' : 's'}
               </div>
@@ -268,14 +261,13 @@ export default function AdminAttendancePage() {
                 <tr className="text-left text-dark-400 border-b border-dark-700">
                   <th className="py-2 px-3 font-medium">Faculty</th>
                   <th className="py-2 px-3 font-medium text-right">Days</th>
-                  <th className="py-2 px-3 font-medium text-right">Classes</th>
                   <th className="py-2 px-3 font-medium text-right">Amount</th>
                 </tr>
               </thead>
               <tbody>
                 {summary.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="py-4 px-3 text-center text-dark-500">
+                    <td colSpan={3} className="py-4 px-3 text-center text-dark-500">
                       No records this month
                     </td>
                   </tr>
@@ -290,7 +282,6 @@ export default function AdminAttendancePage() {
                         {s.faculty_name || 'Unknown'}
                       </td>
                       <td className="py-2 px-3 text-right text-dark-300">{s.days}</td>
-                      <td className="py-2 px-3 text-right text-dark-300">{s.total_classes}</td>
                       <td className="py-2 px-3 text-right text-secondary-400 font-medium">
                         ₹{s.total_amount}
                       </td>
@@ -310,8 +301,7 @@ export default function AdminAttendancePage() {
           canEdit
           canDelete
           facultyLabel={selectedFacultyName}
-          classLength={classLength}
-          ratePerClass={ratePerClass}
+          ratePerDay={ratePerDay}
           saving={saving}
           onClose={closeModal}
           onSave={handleSave}

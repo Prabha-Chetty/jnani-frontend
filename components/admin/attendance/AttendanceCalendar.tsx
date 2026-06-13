@@ -96,7 +96,7 @@ export default function AttendanceCalendar({
                 <span className="mt-auto text-[11px] font-medium text-green-300 leading-tight">
                   {entry!.minutes_taken}m
                   <span className="block text-[10px] text-green-400/90">
-                    {entry!.classes} cls · ₹{entry!.amount}
+                    ₹{entry!.amount}
                   </span>
                 </span>
               )}
