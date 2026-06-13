@@ -32,8 +32,7 @@ export type Attendance = {
     date: string;        // YYYY-MM-DD
     day: string;         // weekday name
     minutes_taken: number;
-    classes: number;     // whole completed classes
-    amount: number;      // remuneration in Rs
+    amount: number;      // flat remuneration in Rs for the day
     notes?: string | null;
     marked_by?: string | null;
 }
@@ -42,7 +41,6 @@ export type AttendanceSummary = {
     faculty_id: string;
     faculty_name?: string | null;
     total_minutes: number;
-    total_classes: number;
     total_amount: number;
     days: number;
 }
