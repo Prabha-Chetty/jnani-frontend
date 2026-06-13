@@ -15,6 +15,46 @@ export type User = {
     roles: string[];
 }
 
+export type CurrentUser = {
+    id: string;
+    name: string;
+    email: string;
+    roles: string[];
+    faculty_id?: string | null;
+    faculty_name?: string | null;
+    is_admin: boolean;
+}
+
+export type Attendance = {
+    id: string;
+    faculty_id: string;
+    faculty_name?: string | null;
+    date: string;        // YYYY-MM-DD
+    day: string;         // weekday name
+    minutes_taken: number;
+    classes: number;     // whole completed classes
+    amount: number;      // remuneration in Rs
+    notes?: string | null;
+    marked_by?: string | null;
+}
+
+export type AttendanceSummary = {
+    faculty_id: string;
+    faculty_name?: string | null;
+    total_minutes: number;
+    total_classes: number;
+    total_amount: number;
+    days: number;
+}
+
+export type StudentAttendance = {
+    student_id: string;
+    date: string;        // YYYY-MM-DD
+    day: string;         // weekday name
+    status: 'present' | 'absent';
+    marked_by?: string | null;
+}
+
 export type Role = {
     id: string;
     name: string;

@@ -3,10 +3,13 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { useRouter } from 'next/navigation'
 import toast from 'react-hot-toast'
+import { CurrentUser } from '@/types'
 
 interface AuthContextType {
   isAuthenticated: boolean
   isLoading: boolean
+  currentUser: CurrentUser | null
+  isAdmin: boolean
   login: (email: string, password: string) => Promise<boolean>
   logout: () => void
   getAuthToken: () => string | null
@@ -20,7 +23,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
   const [authToken, setAuthToken] = useState<string | null>(null)
+  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null)
   const router = useRouter()
+
+  // Fetch the logged-in user's profile (roles + linked faculty) for role-gating.
+  const fetchCurrentUser = async (token: string): Promise<CurrentUser | null> => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+      if (response.ok) {
+        const user: CurrentUser = await response.json()
+        setCurrentUser(user)
+        return user
+      }
+    } catch (error) {
+      console.error('Error fetching current user:', error)
+    }
+    return null
+  }
 
   // Function to decode JWT token and check expiry
   const decodeToken = (token: string) => {
@@ -111,6 +132,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('adminAuthToken')
     setAuthToken(null)
     setIsAuthenticated(false)
+    setCurrentUser(null)
     toast.error('Session expired. Please login again.')
     router.push('/admin')
   }
@@ -124,6 +146,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         setAuthToken(token)
         setIsAuthenticated(true)
+        fetchCurrentUser(token)
       }
     }
     setIsLoading(false)
@@ -254,6 +277,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             localStorage.setItem('adminAuthToken', data.access_token)
             setAuthToken(data.access_token)
             setIsAuthenticated(true)
+            await fetchCurrentUser(data.access_token)
             return true
         } else {
             const errorData = await response.text()
@@ -270,6 +294,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem('adminAuthToken')
     setAuthToken(null)
     setIsAuthenticated(false)
+    setCurrentUser(null)
     router.push('/admin')
   }
 
@@ -281,6 +306,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     <AuthContext.Provider value={{
       isAuthenticated,
       isLoading,
+      currentUser,
+      isAdmin: currentUser?.is_admin ?? false,
       login,
       logout,
       getAuthToken,

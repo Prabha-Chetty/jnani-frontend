@@ -7,7 +7,7 @@ import { ReactNode, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function AdminAppLayout({ children }: { children: ReactNode }) {
-  const { isAuthenticated, isLoading, checkTokenExpiry } = useAuth()
+  const { isAuthenticated, isLoading, checkTokenExpiry, currentUser, isAdmin } = useAuth()
   const router = useRouter()
 
   // Check token expiry on component mount and when user is authenticated
@@ -19,6 +19,13 @@ export default function AdminAppLayout({ children }: { children: ReactNode }) {
       }
     }
   }, [isAuthenticated, checkTokenExpiry, router])
+
+  // Only admins use the panel now. Non-admin accounts are sent back to login.
+  useEffect(() => {
+    if (isAuthenticated && currentUser && !isAdmin) {
+      router.replace('/admin')
+    }
+  }, [isAuthenticated, currentUser, isAdmin, router])
 
   if (isLoading) {
     return (

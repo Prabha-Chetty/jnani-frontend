@@ -6,6 +6,7 @@ import { X } from 'lucide-react'
 import { User, Role } from '@/types'
 import { useAuth } from '@/components/admin/AuthProvider'
 import axios from 'axios'
+import toast from 'react-hot-toast'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
@@ -44,7 +45,7 @@ export default function UserForm({ user, onSuccess, onClose }: UserFormProps) {
                 .catch((err) => console.error('Failed to load roles', err))
         }
     }, [getAuthToken])
-    
+
     useEffect(() => {
         if (user) {
             reset({
@@ -83,7 +84,16 @@ export default function UserForm({ user, onSuccess, onClose }: UserFormProps) {
                 })
             }
             onSuccess()
-        } catch (error) {
+        } catch (error: any) {
+            // Surface backend validation errors to the user instead of failing silently.
+            const detail = error?.response?.data?.detail
+            let message = 'Failed to save user. Please try again.'
+            if (Array.isArray(detail)) {
+                message = detail.map((d: any) => d.msg).join(', ')
+            } else if (typeof detail === 'string') {
+                message = detail
+            }
+            toast.error(message)
             console.error('Failed to save user', error)
         } finally {
             setIsLoading(false)
@@ -127,11 +137,22 @@ export default function UserForm({ user, onSuccess, onClose }: UserFormProps) {
                         <input
                             id="password"
                             type="password"
-                            {...register('password', { required: !user })}
-                            placeholder={user ? 'Leave blank to keep current password' : ''}
-                            className="mt-1 block w-full px-3 py-2 bg-dark-900 text-dark-100 placeholder-dark-400 border border-dark-700 rounded-md shadow-sm focus:outline-none focus:ring-secondary-500 focus:border-secondary-500 sm:text-sm"
+                            {...register('password', {
+                                validate: (value) => {
+                                    // New user: password required. Edit: optional, but if
+                                    // provided it must still meet the 8-character minimum.
+                                    if (!user && !value) return 'Password is required'
+                                    if (value && value.length < 8) return 'Password must be at least 8 characters'
+                                    return true
+                                },
+                            })}
+                            placeholder={user ? 'Leave blank to keep current password' : 'At least 8 characters'}
+                            aria-invalid={errors.password ? 'true' : 'false'}
+                            className={`mt-1 block w-full px-3 py-2 bg-dark-900 text-dark-100 placeholder-dark-400 border rounded-md shadow-sm focus:outline-none focus:ring-secondary-500 focus:border-secondary-500 sm:text-sm ${errors.password ? 'border-red-500' : 'border-dark-700'}`}
                         />
-                        {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
+                        {errors.password
+                            ? <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>
+                            : <p className="text-dark-400 text-xs mt-1">Minimum 8 characters.</p>}
                     </div>
                      <div>
                         <label className="block text-sm font-medium text-gray-700">Roles</label>
@@ -176,4 +197,4 @@ export default function UserForm({ user, onSuccess, onClose }: UserFormProps) {
             </div>
         </div>
     )
-} 
+}

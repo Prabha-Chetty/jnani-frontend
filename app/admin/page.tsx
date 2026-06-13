@@ -14,10 +14,11 @@ export default function AdminLogin() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
-  const { isAuthenticated, isLoading, login } = useAuth()
+  const { isAuthenticated, isLoading, login, isAdmin, currentUser } = useAuth()
 
-  // Redirect if already authenticated
-  if (isAuthenticated) {
+  // Redirect once authenticated and the profile has loaded. Only admins use
+  // the panel; non-admins have nothing to access and stay on the login screen.
+  if (isAuthenticated && currentUser && isAdmin) {
     router.push('/admin/dashboard')
     return null
   }
@@ -39,7 +40,8 @@ export default function AdminLogin() {
       const success = await login(email, password)
       if (success) {
         toast.success('Login successful!')
-        router.push('/admin/dashboard')
+        // Navigation is handled by the role-aware redirect guard above
+        // once the user profile finishes loading.
       } else {
         toast.error('Invalid credentials')
       }

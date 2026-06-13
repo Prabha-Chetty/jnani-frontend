@@ -14,7 +14,8 @@ async function getFaculties(token: string): Promise<Faculty[]> {
     const { data } = await axios.get(`${API_URL}/admin/faculties/`, {
         headers: { Authorization: `Bearer ${token}` }
     });
-    return data;
+    // Backend serializes _id via Pydantic alias; normalise to id for the UI.
+    return (data as any[]).map((f) => ({ ...f, id: f.id ?? f._id }));
 }
 
 async function deleteFaculty(id: string, token: string): Promise<void> {
