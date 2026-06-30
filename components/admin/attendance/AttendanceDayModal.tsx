@@ -13,7 +13,8 @@ type Props = {
   canEdit: boolean      // admins can edit existing entries
   canDelete: boolean    // admins can delete existing entries
   facultyLabel?: string // shown for context (admin view)
-  ratePerDay: number    // flat Rs paid per day attended
+  ratePerClass: number  // Rs paid per class taught
+  classMinutes: number  // length of one class in minutes
   saving?: boolean
   onClose: () => void
   onSave: (payload: DayModalPayload, entryId: string | null) => void
@@ -26,7 +27,8 @@ export default function AttendanceDayModal({
   canEdit,
   canDelete,
   facultyLabel,
-  ratePerDay,
+  ratePerClass,
+  classMinutes,
   saving = false,
   onClose,
   onSave,
@@ -37,6 +39,14 @@ export default function AttendanceDayModal({
   )
   const [notes, setNotes] = useState<string>(entry?.notes ?? '')
   const [error, setError] = useState<string | null>(null)
+
+  // Live amount preview: only whole completed classes are paid.
+  const minutesValue = Number(minutes)
+  const completedClasses =
+    Number.isFinite(minutesValue) && minutesValue > 0
+      ? Math.floor(minutesValue / classMinutes)
+      : 0
+  const estimatedAmount = completedClasses * ratePerClass
 
   // Existing entry that the current user cannot edit -> read-only view.
   const readOnly = !!entry && !canEdit
@@ -78,7 +88,7 @@ export default function AttendanceDayModal({
             <div>
               <p className="text-sm text-dark-400">Time Taught</p>
               <p className="text-lg font-semibold text-dark-50">
-                {entry!.minutes_taken} min · ₹{entry!.amount} for the day
+                {entry!.minutes_taken} min · ₹{entry!.amount}
               </p>
             </div>
             {entry!.notes && (
@@ -122,9 +132,17 @@ export default function AttendanceDayModal({
                 placeholder="e.g. 90"
               />
               <p className="text-xs text-dark-400 mt-1">
-                Enter whole minutes. A flat{' '}
-                <span className="text-secondary-400">₹{ratePerDay}</span> is paid for the day,
-                regardless of minutes.
+                Enter whole minutes.{' '}
+                <span className="text-secondary-400">₹{ratePerClass}</span> per{' '}
+                {classMinutes}-minute class
+                {minutesValue > 0 && (
+                  <>
+                    {' '}— {completedClasses} completed class
+                    {completedClasses === 1 ? '' : 'es'} ={' '}
+                    <span className="text-secondary-400">₹{estimatedAmount}</span>
+                  </>
+                )}
+                . Only whole completed classes are paid.
               </p>
             </div>
             <div>

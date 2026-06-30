@@ -1,4 +1,4 @@
-import { Attendance } from '@/types'
+import { Attendance, AttendanceSummary } from '@/types'
 import { prettyDate } from './dateUtils'
 
 function downloadBlob(content: string, filename: string, type: string) {
@@ -103,6 +103,82 @@ export function printAttendance(
   <table>
     <thead><tr>${head}</tr></thead>
     <tbody>${body || `<tr><td colspan="${totalCols}" style="text-align:center">No records</td></tr>`}${rows.length ? totalRow : ''}</tbody>
+  </table>
+  <script>window.onload = function () { window.print(); }</script>
+</body>
+</html>`
+
+  const w = window.open('', '_blank')
+  if (!w) {
+    alert('Please allow pop-ups to print/export the attendance sheet.')
+    return
+  }
+  w.document.write(html)
+  w.document.close()
+}
+
+/**
+ * Export the all-staff monthly summary to CSV — mirrors the summary table
+ * shown beside the calendar (Faculty, Days, Amount).
+ */
+export function exportSummaryCSV(rows: AttendanceSummary[], filename: string) {
+  const headers = ['Faculty', 'Days', 'Amount (Rs)']
+  const lines = [headers.join(',')]
+  rows.forEach((r) => {
+    const cells = [r.faculty_name ?? 'Unknown', r.days, r.total_amount]
+    lines.push(cells.map(csvCell).join(','))
+  })
+
+  const totalDays = rows.reduce((sum, r) => sum + (r.days || 0), 0)
+  const totalAmount = rows.reduce((sum, r) => sum + (r.total_amount || 0), 0)
+  lines.push(['Total', totalDays, totalAmount].map(csvCell).join(','))
+
+  downloadBlob(lines.join('\n'), filename, 'text/csv;charset=utf-8;')
+}
+
+/**
+ * Open a print-friendly window for the all-staff monthly summary — mirrors the
+ * summary table beside the calendar (Faculty, Days, Amount).
+ */
+export function printSummary(
+  title: string,
+  subtitle: string,
+  rows: AttendanceSummary[],
+) {
+  const totalDays = rows.reduce((sum, r) => sum + (r.days || 0), 0)
+  const totalAmount = rows.reduce((sum, r) => sum + (r.total_amount || 0), 0)
+
+  const head = '<th>Faculty</th><th>Days</th><th>Amount (Rs)</th>'
+  const body = rows
+    .map(
+      (r) =>
+        `<tr><td>${r.faculty_name ?? 'Unknown'}</td><td>${r.days}</td><td>${r.total_amount}</td></tr>`,
+    )
+    .join('')
+  const totalRow = `<tr class="total"><td>Total</td><td>${totalDays}</td><td>${totalAmount}</td></tr>`
+
+  const html = `<!DOCTYPE html>
+<html>
+<head>
+<title>${title}</title>
+<meta charset="utf-8" />
+<style>
+  body { font-family: Arial, sans-serif; color: #111; padding: 24px; }
+  h1 { text-align: center; font-size: 20px; margin-bottom: 4px; }
+  p.subtitle { text-align: center; margin-top: 0; color: #444; }
+  table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+  th, td { border: 1px solid #333; padding: 8px 10px; text-align: left; font-size: 13px; }
+  th { background: #f0f0f0; }
+  tr.total td { font-weight: bold; background: #fafafa; }
+  @media print { button { display: none; } }
+</style>
+</head>
+<body>
+  <h1>${title}</h1>
+  <p class="subtitle">${subtitle}</p>
+  <table>
+    <thead><tr>${head}</tr></thead>
+    <tbody>${body || '<tr><td colspan="3" style="text-align:center">No records</td></tr>'}${rows.length ? totalRow : ''}</tbody>
   </table>
   <script>window.onload = function () { window.print(); }</script>
 </body>

@@ -32,7 +32,7 @@ export type Attendance = {
     date: string;        // YYYY-MM-DD
     day: string;         // weekday name
     minutes_taken: number;
-    amount: number;      // flat remuneration in Rs for the day
+    amount: number;      // remuneration in Rs, prorated by minutes taught
     notes?: string | null;
     marked_by?: string | null;
 }
