@@ -9,7 +9,7 @@ import { Attendance, AttendanceSummary, Faculty } from '@/types'
 import AttendanceCalendar from '@/components/admin/attendance/AttendanceCalendar'
 import AttendanceDayModal, { DayModalPayload } from '@/components/admin/attendance/AttendanceDayModal'
 import { MONTHS } from '@/components/admin/attendance/dateUtils'
-import { exportAttendanceCSV, printAttendance } from '@/components/admin/attendance/exportUtils'
+import { exportSummaryCSV, printSummary } from '@/components/admin/attendance/exportUtils'
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
@@ -27,7 +27,8 @@ export default function AdminAttendancePage() {
   const [saving, setSaving] = useState(false)
   const [modalDate, setModalDate] = useState<string | null>(null)
   const [modalEntry, setModalEntry] = useState<Attendance | null>(null)
-  const [ratePerDay, setRatePerDay] = useState(500)
+  const [ratePerClass, setRatePerClass] = useState(250)
+  const [classMinutes, setClassMinutes] = useState(45)
 
   const authHeader = () => ({ Authorization: `Bearer ${getAuthToken()}` })
 
@@ -47,7 +48,8 @@ export default function AdminAttendancePage() {
     axios
       .get(`${API_URL}/admin/attendance/config`, { headers: authHeader() })
       .then(({ data }) => {
-        setRatePerDay(data.rate_per_day)
+        if (data.rate_per_class != null) setRatePerClass(data.rate_per_class)
+        if (data.class_minutes != null) setClassMinutes(data.class_minutes)
       })
       .catch(() => {/* fall back to defaults */})
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -166,15 +168,15 @@ export default function AdminAttendancePage() {
   const totalAmount = entries.reduce((sum, e) => sum + (e.amount || 0), 0)
 
   const handleExportCSV = () =>
-    exportAttendanceCSV(
-      entries,
-      `attendance-${selectedFacultyName || 'faculty'}-${year}-${String(month).padStart(2, '0')}.csv`,
+    exportSummaryCSV(
+      summary,
+      `attendance-all-staff-${year}-${String(month).padStart(2, '0')}.csv`,
     )
   const handlePrint = () =>
-    printAttendance(
-      `${selectedFacultyName} — Attendance`,
+    printSummary(
+      'All Staff — Attendance Summary',
       periodLabel,
-      entries,
+      summary,
     )
 
   return (
@@ -201,14 +203,14 @@ export default function AdminAttendancePage() {
         <div className="flex gap-2 sm:ml-auto">
           <button
             onClick={handleExportCSV}
-            disabled={!entries.length}
+            disabled={!summary.length}
             className="flex items-center gap-1.5 bg-dark-700 hover:bg-dark-600 disabled:opacity-50 text-dark-100 text-sm font-medium py-2 px-3 rounded-lg"
           >
             <Download className="w-4 h-4" /> CSV
           </button>
           <button
             onClick={handlePrint}
-            disabled={!entries.length}
+            disabled={!summary.length}
             className="flex items-center gap-1.5 bg-dark-700 hover:bg-dark-600 disabled:opacity-50 text-dark-100 text-sm font-medium py-2 px-3 rounded-lg"
           >
             <Printer className="w-4 h-4" /> Print / PDF
@@ -301,7 +303,8 @@ export default function AdminAttendancePage() {
           canEdit
           canDelete
           facultyLabel={selectedFacultyName}
-          ratePerDay={ratePerDay}
+          ratePerClass={ratePerClass}
+          classMinutes={classMinutes}
           saving={saving}
           onClose={closeModal}
           onSave={handleSave}
