@@ -72,7 +72,14 @@ export default function AdminAttendancePage() {
           headers: authHeader(),
         }),
       ])
-      setEntries(entriesRes.data)
+      // Backend serializes _id via Pydantic alias; normalise to id so the
+      // day modal can PUT/DELETE the entry (otherwise edits fall back to a
+      // POST and are rejected as duplicates — "one-time add only").
+      const entryList = (entriesRes.data as any[]).map((e) => ({
+        ...e,
+        id: e.id ?? e._id,
+      }))
+      setEntries(entryList)
       setSummary(summaryRes.data)
     } catch (err) {
       console.error('Failed to load attendance', err)
@@ -161,8 +168,16 @@ export default function AdminAttendancePage() {
     }
   }
 
-  const selectedFacultyName =
-    faculties.find((f) => f.id === selectedFaculty)?.name || ''
+  const selectedFacultyObj = faculties.find((f) => f.id === selectedFaculty)
+  const selectedFacultyName = selectedFacultyObj?.name || ''
+
+  // Effective rate for the selected faculty: their per-faculty override, else
+  // the centre-wide default. For an existing entry we prefer the rate frozen
+  // onto that entry (Option B) so the preview matches what was actually paid.
+  const facultyRate = selectedFacultyObj?.rate_per_class ?? ratePerClass
+  const facultyClassMinutes = selectedFacultyObj?.class_minutes ?? classMinutes
+  const modalRate = modalEntry?.rate_per_class ?? facultyRate
+  const modalClassMinutes = modalEntry?.class_minutes ?? facultyClassMinutes
   const periodLabel = `${MONTHS[month - 1]} ${year}`
   const totalMinutes = entries.reduce((sum, e) => sum + (e.minutes_taken || 0), 0)
   const totalAmount = entries.reduce((sum, e) => sum + (e.amount || 0), 0)
@@ -303,8 +318,8 @@ export default function AdminAttendancePage() {
           canEdit
           canDelete
           facultyLabel={selectedFacultyName}
-          ratePerClass={ratePerClass}
-          classMinutes={classMinutes}
+          ratePerClass={modalRate}
+          classMinutes={modalClassMinutes}
           saving={saving}
           onClose={closeModal}
           onSave={handleSave}

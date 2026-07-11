@@ -5,6 +5,8 @@ export type Faculty = {
     qualification: string;
     experience: number;
     profile_image_url?: string;
+    rate_per_class?: number | null;  // per-faculty attendance rate override
+    class_minutes?: number | null;
 }
 
 export type User = {
@@ -33,6 +35,8 @@ export type Attendance = {
     day: string;         // weekday name
     minutes_taken: number;
     amount: number;      // remuneration in Rs, prorated by minutes taught
+    rate_per_class?: number | null;  // rate frozen onto this entry at save time
+    class_minutes?: number | null;
     notes?: string | null;
     marked_by?: string | null;
 }

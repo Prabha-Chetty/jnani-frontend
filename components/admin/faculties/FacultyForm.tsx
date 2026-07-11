@@ -21,6 +21,8 @@ type FormData = {
     subject: string;
     qualification: string;
     experience: number;
+    rate_per_class?: number;
+    class_minutes?: number;
     profile_image?: FileList;
 }
 
@@ -36,6 +38,8 @@ export default function FacultyForm({ faculty, onSuccess, onClose }: FacultyForm
                 subject: faculty.subject,
                 qualification: faculty.qualification,
                 experience: faculty.experience,
+                rate_per_class: faculty.rate_per_class ?? undefined,
+                class_minutes: faculty.class_minutes ?? undefined,
             })
         } else {
             reset({
@@ -43,6 +47,8 @@ export default function FacultyForm({ faculty, onSuccess, onClose }: FacultyForm
                 subject: '',
                 qualification: '',
                 experience: 0,
+                rate_per_class: undefined,
+                class_minutes: undefined,
                 profile_image: undefined
             })
         }
@@ -66,6 +72,16 @@ export default function FacultyForm({ faculty, onSuccess, onClose }: FacultyForm
         formData.append('subject', facultyData.subject);
         formData.append('qualification', facultyData.qualification);
         formData.append('experience', facultyData.experience.toString());
+
+        // Optional per-faculty remuneration overrides. Only send when a valid
+        // positive number is entered; leaving them blank means "use the global
+        // default rate" on the backend.
+        if (Number.isFinite(data.rate_per_class) && (data.rate_per_class as number) > 0) {
+            formData.append('rate_per_class', String(data.rate_per_class))
+        }
+        if (Number.isFinite(data.class_minutes) && (data.class_minutes as number) > 0) {
+            formData.append('class_minutes', String(data.class_minutes))
+        }
 
         if (data.profile_image && data.profile_image.length > 0) {
             formData.append('profile_image', data.profile_image[0])
@@ -141,6 +157,35 @@ export default function FacultyForm({ faculty, onSuccess, onClose }: FacultyForm
                             className="mt-1 block w-full px-3 py-2 bg-dark-900 text-dark-100 placeholder-dark-400 border border-dark-700 rounded-md shadow-sm focus:outline-none focus:ring-secondary-500 focus:border-secondary-500 sm:text-sm"
                         />
                         {errors.experience && <p className="text-red-500 text-xs mt-1">{errors.experience.message}</p>}
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label htmlFor="rate_per_class" className="block text-sm font-medium text-gray-700">Rate per class (₹)</label>
+                            <input
+                                id="rate_per_class"
+                                type="number"
+                                step="0.01"
+                                min="0"
+                                placeholder="Default"
+                                {...register('rate_per_class', { valueAsNumber: true, min: { value: 0, message: 'Must be positive' } })}
+                                className="mt-1 block w-full px-3 py-2 bg-dark-900 text-dark-100 placeholder-dark-400 border border-dark-700 rounded-md shadow-sm focus:outline-none focus:ring-secondary-500 focus:border-secondary-500 sm:text-sm"
+                            />
+                            {errors.rate_per_class && <p className="text-red-500 text-xs mt-1">{errors.rate_per_class.message}</p>}
+                        </div>
+                        <div>
+                            <label htmlFor="class_minutes" className="block text-sm font-medium text-gray-700">Class length (min)</label>
+                            <input
+                                id="class_minutes"
+                                type="number"
+                                step="1"
+                                min="0"
+                                placeholder="Default"
+                                {...register('class_minutes', { valueAsNumber: true, min: { value: 0, message: 'Must be positive' } })}
+                                className="mt-1 block w-full px-3 py-2 bg-dark-900 text-dark-100 placeholder-dark-400 border border-dark-700 rounded-md shadow-sm focus:outline-none focus:ring-secondary-500 focus:border-secondary-500 sm:text-sm"
+                            />
+                            {errors.class_minutes && <p className="text-red-500 text-xs mt-1">{errors.class_minutes.message}</p>}
+                        </div>
+                        <p className="col-span-2 -mt-2 text-xs text-dark-400">Leave blank to use the centre-wide default rate.</p>
                     </div>
                     <div>
                         <label htmlFor="profile_image" className="block text-sm font-medium text-gray-700">Profile Image</label>
